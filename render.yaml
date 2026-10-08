@@ -14,7 +14,7 @@ services:
     runtime: node
     plan: free
     region: singapore
-    buildCommand: npm ci --include=dev && npm run build
+    buildCommand: npm ci --include=dev && npm run build:api
     startCommand: npm run start -w @lumen/api
     healthCheckPath: /api/health
     autoDeploy: true
