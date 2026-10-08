@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createApp } from './app';
 import { loadConfig } from './config/env';
 import { createDatabase } from './db/client';
@@ -6,7 +8,11 @@ import { createLogger } from './lib/logger';
 const config = loadConfig();
 const logger = createLogger(config);
 const database = createDatabase(config.database);
-const app = createApp({ config, db: database.db, logger });
+// In production the API also serves the built web app from apps/web/dist.
+const webDistDir =
+  process.env.WEB_DIST_DIR ??
+  path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web/dist');
+const app = createApp({ config, db: database.db, logger, webDistDir });
 
 const server = app.listen(config.port, () => {
   logger.info({ port: config.port, env: config.env }, 'Lumen API listening');
