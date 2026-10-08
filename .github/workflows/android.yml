@@ -36,7 +36,7 @@ jobs:
       EXPO_PUBLIC_API_URL: ${{ inputs.api_url || vars.LUMEN_API_URL || 'https://lumen-api-x4be.onrender.com' }}
       NODE_OPTIONS: --max-old-space-size=6144
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: 22
