@@ -31,13 +31,13 @@ login ─► access JWT (15 min, memory only)  +  refresh token (30 days)
 - **Server-side sessions.** Each sign-in creates a `sessions` row. The access token carries the session id, and the auth middleware checks that the session is still active. Logout and "sign out this device" therefore take effect immediately instead of waiting up to 15 minutes.
 - **Refresh token rotation with replay detection.** Only the SHA-256 of the refresh token is stored. Each refresh atomically swaps the hash (compare-and-swap `UPDATE … WHERE refresh_token_hash = $old`), so two concurrent refreshes cannot both win. Presenting an already-rotated token after a 30-second grace window revokes the session and records `auth.refresh_reuse_detected`.
 - **No token in browser storage.** The web app keeps the access token in a module variable. An XSS payload cannot read the refresh cookie, and there is no long-lived credential in `localStorage`.
-- **First-party cookie.** In production the web app calls `/api/*` on its own origin and Vercel rewrites to the API, so the refresh cookie is first-party and `SameSite=Strict` works. That also removes most CSRF exposure; the only cookie-authenticated endpoints are `refresh` (returns a token readable only by same-origin script) and `logout`.
+- **First-party cookie.** In production the API serves the web app, so the page calls `/api/*` on its own origin, so the refresh cookie is first-party and `SameSite=Strict` works. That also removes most CSRF exposure; the only cookie-authenticated endpoints are `refresh` (returns a token readable only by same-origin script) and `logout`.
 - **Constant-work login.** Unknown emails still run a bcrypt comparison against a dummy hash, and both failures return the same message, so neither the response nor its timing reveals which emails are registered. (Registration necessarily reports a taken email; that is a product trade-off.)
 
 ## Other controls
 
 - `helmet` security headers (HSTS, `nosniff`, frame denial, CSP on the docs page); `X-Powered-By` removed.
-- Vercel adds a strict Content-Security-Policy (`script-src 'self'` plus the hash of one inline theme script), `X-Frame-Options: DENY`, `Referrer-Policy` and `Permissions-Policy` to the web app.
+- The web app is served with a strict Content-Security-Policy: `script-src 'self'` plus SHA-256 hashes of the inline scripts, computed from the built `index.html` at startup (`apps/api/src/web.ts`); `frame-ancestors 'none'`, `connect-src 'self'`.
 - JSON body limit of 100 KB; malformed JSON → 400; `__proto__` keys rejected by strict schemas.
 - Query strings use Express's simple parser, so `?status[]=x` cannot smuggle arrays or objects into filters.
 - `trust proxy` is set to an explicit hop count instead of `true`, so `X-Forwarded-For` cannot be freely spoofed to dodge per-IP limits.
@@ -50,7 +50,7 @@ login ─► access JWT (15 min, memory only)  +  refresh token (30 days)
 
 ## Known trade-offs and limitations
 
-- **Per-IP limits behind two proxies.** Web traffic passes through Vercel and Render, so the API trusts two hops. A client calling the API directly can forge the left-most `X-Forwarded-For` entry and rotate its apparent IP. The per-email limit on failed logins does not depend on IP and still caps password guessing per account. A production setup would put the web app and API behind one controlled proxy, or use an edge rate limiter.
+- **Per-IP limits depend on the proxy.** The API trusts exactly one proxy hop (Render's). If the web app is moved behind another proxy (e.g. the optional Vercel config), `TRUST_PROXY` must be raised, and a client calling the API directly could then forge the left-most `X-Forwarded-For` entry. The per-email limit on failed logins does not depend on IP and still caps password guessing per account.
 - **No email verification or password reset.** Out of scope for the brief; the session model supports adding them.
 - **Free hosting.** Render's free PostgreSQL expires after 30 days and the free API sleeps after 15 idle minutes (a scheduled GitHub Action pings it every 10 minutes during review).
 - **Offline cache on the phone.** Viewed projects and tasks are cached in AsyncStorage for offline viewing. They are cleared on sign-out and on session expiry. Tokens are never cached there.

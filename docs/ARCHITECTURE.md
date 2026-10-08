@@ -10,7 +10,7 @@ Lumen is an npm-workspaces monorepo with four packages:
 |---|---|
 | `packages/shared` | Domain enums, field limits, zod validation schemas, response types and a typed `fetch` client with token refresh. Built to ESM + CJS + `.d.ts` with tsup. |
 | `apps/api` | The only backend. Express 5, TypeScript, Drizzle ORM, PostgreSQL. |
-| `apps/web` | React 19 + Vite + Tailwind CSS 4 + TanStack Query, deployed to Vercel. |
+| `apps/web` | React 19 + Vite + Tailwind CSS 4 + TanStack Query. In production the built app is served by the API service. |
 | `apps/mobile` | Expo SDK 57 (React Native 0.86, new architecture) with Expo Router, built to an Android APK. |
 
 The web and mobile apps call exactly the same endpoints with exactly the same client code. A change made on one platform is a row in the same PostgreSQL table the other platform reads.
@@ -47,11 +47,11 @@ Each decision lists what was chosen, why, and what it costs. These are the point
 - **Why:** pure stateless JWT makes "logout" a client-side illusion. Checking the session row on each request (one primary-key lookup) makes logout and "sign out this device" immediate, and lets the web Settings page show every signed-in device across web and Android.
 - **Cost:** one extra indexed query per request.
 
-### 6. Web: same-origin API through a Vercel rewrite
+### 6. Web: one origin for the page and the API
 
-- **Chosen:** the browser calls `/api/*` on the web app's own origin; Vercel rewrites to the Render API. Development uses the Vite proxy and Docker uses nginx the same way.
+- **Chosen:** the API serves the built web app (`apps/api/src/web.ts`), so the browser calls `/api/*` on the page's own origin. Development uses the Vite proxy and Docker uses nginx the same way. A Vercel config (`apps/web/vercel.json`, rewriting `/api/*` to the API) is included for hosting the web app separately.
 - **Why:** the refresh cookie is first-party, so `SameSite=Strict` works and third-party-cookie blocking in Safari/Chrome is not an issue; the strict CSP can use `connect-src 'self'`.
-- **Cost:** the API sees two proxy hops for web traffic (see the rate-limit trade-off in [SECURITY.md](SECURITY.md)).
+- **Cost:** web and API scale together as one service, which is the right trade at this size.
 
 ### 7. Mobile: offline-first reads, fail-fast writes
 
