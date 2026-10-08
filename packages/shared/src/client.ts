@@ -1,3 +1,4 @@
+import { todayISO } from './format';
 import type {
   CreateProjectInput,
   CreateTaskInput,
@@ -252,8 +253,12 @@ export function createApiClient(options: ApiClientOptions) {
     },
     projects: {
       list: (query: ProjectListParams = {}, signal?: AbortSignal) =>
-        request<Paginated<Project>>('GET', '/api/projects', { query: { ...query }, signal }),
-      get: (id: string) => request<{ data: Project }>('GET', `/api/projects/${id}`),
+        request<Paginated<Project>>('GET', '/api/projects', {
+          query: { today: todayISO(), ...query },
+          signal,
+        }),
+      get: (id: string) =>
+        request<{ data: Project }>('GET', `/api/projects/${id}`, { query: { today: todayISO() } }),
       create: (input: CreateProjectInput) =>
         request<{ data: Project }>('POST', '/api/projects', { body: input }),
       update: (id: string, input: UpdateProjectInput) =>
@@ -262,8 +267,12 @@ export function createApiClient(options: ApiClientOptions) {
     },
     tasks: {
       list: (query: TaskListParams = {}, signal?: AbortSignal) =>
-        request<Paginated<Task>>('GET', '/api/tasks', { query: { ...query }, signal }),
-      get: (id: string) => request<{ data: Task }>('GET', `/api/tasks/${id}`),
+        request<Paginated<Task>>('GET', '/api/tasks', {
+          query: { today: todayISO(), ...query },
+          signal,
+        }),
+      get: (id: string) =>
+        request<{ data: Task }>('GET', `/api/tasks/${id}`, { query: { today: todayISO() } }),
       create: (input: CreateTaskInput) =>
         request<{ data: Task }>('POST', '/api/tasks', { body: input }),
       update: (id: string, input: UpdateTaskInput) =>
@@ -271,7 +280,8 @@ export function createApiClient(options: ApiClientOptions) {
       remove: (id: string) => request<void>('DELETE', `/api/tasks/${id}`),
     },
     dashboard: {
-      get: () => request<{ data: Dashboard }>('GET', '/api/dashboard'),
+      get: () =>
+        request<{ data: Dashboard }>('GET', '/api/dashboard', { query: { today: todayISO() } }),
     },
     activity: {
       list: (limit = 30) =>

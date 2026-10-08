@@ -70,7 +70,7 @@ export interface Task {
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
-  /** True when the task is not completed and its due date is before today (UTC). */
+  /** True when the task is not completed and its due date is before today (the client's date when sent, else UTC). */
   isOverdue: boolean;
 }
 
@@ -167,6 +167,7 @@ export interface ProjectListParams {
   limit?: number;
   sort?: ProjectSortField;
   order?: SortOrder;
+  today?: string;
 }
 
 /** Query parameters accepted by `GET /api/tasks`. */
@@ -180,4 +181,5 @@ export interface TaskListParams {
   limit?: number;
   sort?: TaskSortField;
   order?: SortOrder;
+  today?: string;
 }

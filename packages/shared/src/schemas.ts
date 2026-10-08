@@ -244,6 +244,16 @@ const booleanParam = (field: string) =>
     .optional()
     .transform((value) => (value === undefined ? undefined : value === 'true'));
 
+/**
+ * The client's local calendar date. "Overdue" depends on the user's time zone, so clients
+ * send their own today; the API falls back to the UTC date when it is absent.
+ */
+const todayParam = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'today must be a date in YYYY-MM-DD format')
+  .refine(isRealCalendarDate, 'today is not a valid calendar date')
+  .optional();
+
 export const projectListQuerySchema = z.strictObject({
   search: searchParam,
   status: enumField('status', PROJECT_STATUSES).optional(),
@@ -251,6 +261,7 @@ export const projectListQuerySchema = z.strictObject({
   limit: limitParam,
   sort: enumField('sort', PROJECT_SORT_FIELDS).default('createdAt'),
   order: orderParam,
+  today: todayParam,
 });
 
 export const taskListQuerySchema = z.strictObject({
@@ -263,7 +274,14 @@ export const taskListQuerySchema = z.strictObject({
   limit: limitParam,
   sort: enumField('sort', TASK_SORT_FIELDS).default('createdAt'),
   order: orderParam,
+  today: todayParam,
 });
+
+export const dashboardQuerySchema = z.strictObject({
+  today: todayParam,
+});
+
+export const todayQuerySchema = dashboardQuerySchema;
 
 export const idParamSchema = z.strictObject({
   id: uuid('id'),
