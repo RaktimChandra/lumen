@@ -102,9 +102,14 @@ export function createProjectsService(db: Database) {
     const column = SORT_COLUMNS[query.sort];
     const direction = query.order === 'asc' ? asc : desc;
     const nullsLast = query.sort === 'startDate' || query.sort === 'endDate';
-    const orderBy = nullsLast
-      ? sql`${column} ${sql.raw(query.order === 'asc' ? 'ASC' : 'DESC')} NULLS LAST`
-      : direction(column);
+    const dir = sql.raw(query.order === 'asc' ? 'ASC' : 'DESC');
+    // Names sort case-insensitively; empty dates always sort last.
+    const orderBy =
+      query.sort === 'name'
+        ? sql`lower(${column}) ${dir}`
+        : nullsLast
+          ? sql`${column} ${dir} NULLS LAST`
+          : direction(column);
 
     const [rows, [{ total } = { total: 0 }]] = await Promise.all([
       db

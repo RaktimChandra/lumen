@@ -114,10 +114,14 @@ export function createTasksService(db: Database) {
     const where = and(...filters);
 
     const column = SORT_COLUMNS[query.sort];
+    const dir = sql.raw(query.order === 'asc' ? 'ASC' : 'DESC');
+    // Names sort case-insensitively; tasks without a due date always sort last.
     const orderBy =
-      query.sort === 'dueDate'
-        ? sql`${column} ${sql.raw(query.order === 'asc' ? 'ASC' : 'DESC')} NULLS LAST`
-        : (query.order === 'asc' ? asc : desc)(column);
+      query.sort === 'name'
+        ? sql`lower(${column}) ${dir}`
+        : query.sort === 'dueDate'
+          ? sql`${column} ${dir} NULLS LAST`
+          : (query.order === 'asc' ? asc : desc)(column);
 
     const [rows, [{ total } = { total: 0 }]] = await Promise.all([
       db
