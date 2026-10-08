@@ -59,7 +59,7 @@ jobs:
       - run: npm ci
       - run: npm run build:shared
       - run: npm run test:coverage -w @lumen/api
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: api-coverage
@@ -96,7 +96,7 @@ jobs:
       - name: Bundle the Android JavaScript (catches Metro and import errors)
         run: npx expo export --platform android --output-dir /tmp/android-bundle
         working-directory: apps/mobile
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: web-dist
           path: apps/web/dist
