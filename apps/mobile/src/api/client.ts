@@ -5,7 +5,7 @@ import { session } from '@/auth/session';
 export const API_URL = (
   process.env.EXPO_PUBLIC_API_URL ??
   (Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
-  'https://lumen-api.onrender.com'
+  'https://lumen-api-x4be.onrender.com'
 ).replace(/\/$/, '');
 
 let refreshing: Promise<string | null> | null = null;

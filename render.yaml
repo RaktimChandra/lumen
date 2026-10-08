@@ -1,4 +1,5 @@
-# Render Blueprint: PostgreSQL + the API, in the Singapore region (closest to Chennai).
+# Render Blueprint: PostgreSQL + one web service that serves the API and the web app,
+# in the Singapore region (closest to Chennai).
 databases:
   - name: lumen-db
     plan: free
@@ -13,7 +14,7 @@ services:
     runtime: node
     plan: free
     region: singapore
-    buildCommand: npm ci --include=dev && npm run build:api
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run start -w @lumen/api
     healthCheckPath: /api/health
     autoDeploy: true
@@ -30,10 +31,10 @@ services:
         value: 'false'
       - key: JWT_ACCESS_SECRET
         generateValue: true
-      # Browser traffic arrives via the Vercel rewrite (Vercel edge + Render proxy).
+      # The API also serves the web app, so browser traffic is same-origin.
       - key: TRUST_PROXY
-        value: '2'
+        value: '1'
       - key: CORS_ORIGINS
-        value: https://lumen-pm.vercel.app
+        value: https://lumen-api-x4be.onrender.com
       - key: COOKIE_SAMESITE
         value: strict

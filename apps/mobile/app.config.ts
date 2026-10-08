@@ -4,7 +4,7 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
  * The API the app talks to. Baked in at bundle time; set EXPO_PUBLIC_API_URL to point
  * the app at a local API (Android emulator: http://10.0.2.2:4000).
  */
-const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? 'https://lumen-api.onrender.com';
+const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? 'https://lumen-api-x4be.onrender.com';
 const allowCleartext = apiUrl.startsWith('http://');
 
 export default ({ config }: ConfigContext): ExpoConfig => ({

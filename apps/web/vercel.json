@@ -5,7 +5,7 @@
   "installCommand": "cd ../.. && npm ci",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://lumen-api.onrender.com/api/:path*" },
+    { "source": "/api/:path*", "destination": "https://lumen-api-x4be.onrender.com/api/:path*" },
     { "source": "/((?!assets/).*)", "destination": "/index.html" }
   ],
   "headers": [
