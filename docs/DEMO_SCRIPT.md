@@ -4,7 +4,7 @@ The brief asks for: *log in with the same account on web and mobile, create a ta
 
 ## Setup (before you hit record)
 
-1. Load `{{API_URL}}/api/health` once so the free-tier API is awake (the first response can take up to a minute).
+1. Load `https://lumen-api-x4be.onrender.com/api/health` once so the free-tier API is awake (the first response can take up to a minute).
 2. Install the APK on an Android phone (or emulator) and open it once.
 3. Screen layout: browser on the left, phone mirrored on the right. On Windows/macOS/Linux, `scrcpy` mirrors a USB-connected Android phone; Android Studio's emulator also works.
 4. Use the demo account (`demo@lumen.dev` / `LumenDemo2026`) or create a fresh one in the recording (shows registration too).
@@ -26,7 +26,7 @@ The brief asks for: *log in with the same account on web and mobile, create a ta
 | 3:25 | **Phone:** turn on aeroplane mode, reopen the Tasks tab | "No network: a clear banner, saved data stays visible, nothing crashes." Try to complete a task: an error toast explains it. Turn the network back on. |
 | 3:55 | **Web:** Settings → Signed-in devices → sign out the Android session | "Sessions are server-side, so this is immediate." |
 | 4:10 | **Phone:** pull to refresh | The app returns to sign-in with "You were signed out of this device. Please sign in again." (Token expiry shows "Your session expired".) |
-| 4:30 | **Browser:** open `{{API_URL}}/api/docs`, then the GitHub Actions tab | "OpenAPI docs generated from the shared schemas; CI runs 169 tests against PostgreSQL and builds the APK." |
+| 4:30 | **Browser:** open `https://lumen-api-x4be.onrender.com/api/docs`, then the GitHub Actions tab | "OpenAPI docs generated from the shared schemas; CI runs 169 tests against PostgreSQL and builds the APK." |
 | 4:50 | End on the dashboard | |
 
 ## Optional security shots (if you have extra time)

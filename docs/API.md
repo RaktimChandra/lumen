@@ -4,9 +4,9 @@ One REST API serves both the web app and the Android app.
 
 | | |
 |---|---|
-| Base URL (production) | `{{API_URL}}` |
-| Interactive docs (Swagger UI) | `{{API_URL}}/api/docs` |
-| OpenAPI 3 document | `{{API_URL}}/api/openapi.json` (also committed at [`docs/openapi.json`](openapi.json)) |
+| Base URL (production) | `https://lumen-api-x4be.onrender.com` |
+| Interactive docs (Swagger UI) | `https://lumen-api-x4be.onrender.com/api/docs` |
+| OpenAPI 3 document | `https://lumen-api-x4be.onrender.com/api/openapi.json` (also committed at [`docs/openapi.json`](openapi.json)) |
 | Local | `http://localhost:4000` |
 
 The OpenAPI request schemas are generated from the same zod schemas the API validates with (`packages/shared`), so the documentation cannot drift from the code.
@@ -85,7 +85,7 @@ Creates an account and signs in.
 | `password` | required, 8+ characters, at most 72 bytes (bcrypt limit), at least one letter and one number, no leading/trailing spaces |
 
 ```bash
-curl -X POST {{API_URL}}/api/auth/register \
+curl -X POST https://lumen-api-x4be.onrender.com/api/auth/register \
   -H 'Content-Type: application/json' -H 'X-Client-Platform: mobile' \
   -d '{"fullName":"Ada Lovelace","email":"ada@example.com","password":"analytical1"}'
 ```
@@ -165,7 +165,7 @@ A project object:
 | `page`, `limit` | Pagination |
 
 ```bash
-curl '{{API_URL}}/api/projects?search=raman&status=IN_PROGRESS&sort=name&order=asc' \
+curl 'https://lumen-api-x4be.onrender.com/api/projects?search=raman&status=IN_PROGRESS&sort=name&order=asc' \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -229,7 +229,7 @@ A task object (includes its project's name so lists do not need a second request
 | `order`, `page`, `limit`, `today` | See conventions |
 
 ```bash
-curl '{{API_URL}}/api/tasks?projectId=6c83a77d-…&status=PENDING&priority=HIGH&sort=dueDate&order=asc' \
+curl 'https://lumen-api-x4be.onrender.com/api/tasks?projectId=6c83a77d-…&status=PENDING&priority=HIGH&sort=dueDate&order=asc' \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -256,11 +256,11 @@ Any subset of the fields above. Common calls:
 
 ```bash
 # Mark completed (sets completedAt)
-curl -X PUT {{API_URL}}/api/tasks/$ID -H "Authorization: Bearer $TOKEN" \
+curl -X PUT https://lumen-api-x4be.onrender.com/api/tasks/$ID -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' -d '{"status":"COMPLETED"}'
 
 # Change priority
-curl -X PUT {{API_URL}}/api/tasks/$ID -H "Authorization: Bearer $TOKEN" \
+curl -X PUT https://lumen-api-x4be.onrender.com/api/tasks/$ID -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' -d '{"priority":"HIGH"}'
 ```
 

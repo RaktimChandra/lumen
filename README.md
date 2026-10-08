@@ -10,13 +10,13 @@ Built for the ISMO Bio-Photonics Full Stack Developer assessment by **Raktim Cha
 
 | | |
 |---|---|
-| Web app | **{{WEB_URL}}** |
-| API | **{{API_URL}}** · health: [`/api/health`]({{API_URL}}/api/health) |
-| API docs (Swagger UI) | **{{API_URL}}/api/docs** |
-| Android APK | **{{APK_URL}}** |
+| Web app | **https://lumen-api-x4be.onrender.com** |
+| API | **https://lumen-api-x4be.onrender.com** · health: [`/api/health`](https://lumen-api-x4be.onrender.com/api/health) |
+| API docs (Swagger UI) | **https://lumen-api-x4be.onrender.com/api/docs** |
+| Android APK | **https://github.com/RaktimChandra/lumen/releases/download/v1.0.0/lumen-v1.0.0.apk** |
 | Demo account | `demo@lumen.dev` / `LumenDemo2026` (or register your own) |
 
-> The API runs on Render's free tier, which sleeps when idle. The first request after a pause can take up to a minute; the web app shows a "starting the server" message while it wakes.
+> The web app and the API are one Render service: the web app is at the root URL and the API under `/api`. It runs on Render's free tier, which sleeps when idle. The first request after a pause can take up to a minute; the web app shows a "starting the server" message while it wakes.
 
 ![Web dashboard](docs/images/screenshots/web-dashboard.png)
 
@@ -128,7 +128,7 @@ Extras beyond the brief:
 | Web | **React 19**, Vite, React Router 7, TanStack Query 5, Tailwind CSS 4, react-hook-form, dnd-kit | |
 | Mobile | **Expo SDK 57**, React Native 0.86, Expo Router, TanStack Query (persisted), expo-secure-store, NetInfo | |
 | Tests | Vitest + Supertest (real PostgreSQL), Testing Library, Jest (jest-expo) | 169 tests |
-| Ops | GitHub Actions, CodeQL, Dependabot, Docker, docker compose, nginx, Render, Vercel | |
+| Ops | GitHub Actions, CodeQL, Dependabot, Docker, docker compose, nginx, Render | |
 
 ---
 
@@ -207,7 +207,7 @@ npm run dev:web
 | `BCRYPT_ROUNDS` | `12` | |
 | `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated web origins |
 | `COOKIE_SAMESITE` | `strict` | `strict`, `lax` or `none` (needs HTTPS) |
-| `TRUST_PROXY` | `1` | Proxy hops in front of the API (`2` behind Vercel + Render) |
+| `TRUST_PROXY` | `1` | Proxy hops in front of the API (Render = 1) |
 | `AUTH_RATE_LIMIT_MAX` / `AUTH_RATE_LIMIT_WINDOW_MINUTES` | `10` / `15` | Login + register per IP |
 | `LOGIN_FAILURES_PER_EMAIL` | `5` | Failed logins per email per window |
 | `API_RATE_LIMIT_PER_MINUTE` | `300` | Everything else, per IP |
@@ -217,14 +217,14 @@ npm run dev:web
 
 | Variable | Default | Description |
 |---|---|---|
-| `VITE_API_URL` | empty (same origin) | Leave empty: the dev server and Vercel proxy `/api`. Set only to call an API on another origin. |
+| `VITE_API_URL` | empty (same origin) | Leave empty: in production the API serves the web app, and the dev server proxies `/api`. Set only to call an API on another origin. |
 | `VITE_DEV_API` | `http://localhost:4000` | Dev-server proxy target |
 
 ### Mobile (`apps/mobile/.env`)
 
 | Variable | Default | Description |
 |---|---|---|
-| `EXPO_PUBLIC_API_URL` | `{{API_URL}}` | API the app talks to, baked in at build time |
+| `EXPO_PUBLIC_API_URL` | `https://lumen-api-x4be.onrender.com` | API the app talks to, baked in at build time |
 
 ---
 
@@ -244,7 +244,7 @@ Diagram sources: [`docs/er-diagram.mmd`](docs/er-diagram.mmd) (Mermaid), [SVG](d
 
 ## API
 
-Full reference with request/response examples: **[docs/API.md](docs/API.md)**. Interactive: **{{API_URL}}/api/docs**.
+Full reference with request/response examples: **[docs/API.md](docs/API.md)**. Interactive: **https://lumen-api-x4be.onrender.com/api/docs**.
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
@@ -276,7 +276,7 @@ Errors always look like `{ "error": { "code", "message", "details"?, "requestId"
 
 ### Install the APK
 
-1. Download **{{APK_URL}}** on an Android phone.
+1. Download **https://github.com/RaktimChandra/lumen/releases/download/v1.0.0/lumen-v1.0.0.apk** on an Android phone.
 2. Allow installing from your browser or file manager when Android asks.
 3. Open Lumen and sign in with the same account you use on the web.
 
@@ -286,7 +286,7 @@ The APK is built by the [Android APK workflow](.github/workflows/android.yml) an
 
 ```bash
 cd apps/mobile
-echo "EXPO_PUBLIC_API_URL={{API_URL}}" > .env
+echo "EXPO_PUBLIC_API_URL=https://lumen-api-x4be.onrender.com" > .env
 npx expo start
 ```
 
@@ -335,6 +335,7 @@ API statement coverage is about 89%.
 | [Android APK](.github/workflows/android.yml) | changes to mobile/shared, tags, manual | `expo prebuild` + Gradle release build, uploads the APK, attaches it to tagged releases |
 | [CodeQL](.github/workflows/codeql.yml) | push, PR, weekly | security-extended static analysis |
 | [Keep-alive](.github/workflows/keepalive.yml) | every 10 min | keeps the free-tier API awake for reviewers |
+| [Production smoke test](.github/workflows/smoke.yml) | daily, manual | [`scripts/smoke-test.mjs`](scripts/smoke-test.mjs): 35+ end-to-end checks against the live deployment (auth, cookies, CRUD, filters, dashboard, cross-user isolation, refresh rotation, logout revocation, web shell, CSP) |
 | Dependabot | weekly | npm and Actions updates (Expo-managed packages excluded) |
 
 **Hosting**
@@ -343,7 +344,7 @@ API statement coverage is about 89%.
 |---|---|---|
 | PostgreSQL 16 | Render (Singapore) | managed database |
 | API | Render web service (Singapore) | builds from `main`, runs migrations, then starts; health check `/api/health`. Blueprint: [`render.yaml`](render.yaml) |
-| Web | Vercel | static build; `/api/*` rewritten to the API so cookies stay first-party; security headers and CSP in [`apps/web/vercel.json`](apps/web/vercel.json) |
+| Web | Same Render service | the API serves the built web app from its own origin ([`apps/api/src/web.ts`](apps/api/src/web.ts)): first-party cookies, no CORS, strict hash-based CSP. [`apps/web/vercel.json`](apps/web/vercel.json) is kept for an optional separate Vercel deploy |
 | APK | GitHub Actions artifacts / Releases | |
 
 ---
@@ -370,7 +371,7 @@ The reasoning behind each choice, with its cost, is in **[docs/ARCHITECTURE.md](
 2. Express 5 + Drizzle for an explicit, typed request path and committed SQL migrations.
 3. A normalised schema where task ownership is derived from the project, with integrity enforced in PostgreSQL.
 4. Short-lived JWT plus server-side sessions with rotating refresh tokens.
-5. Same-origin API on the web via a Vercel rewrite, so the refresh cookie is first-party.
+5. The web app and API share one origin (the API serves the built web app), so the refresh cookie is first-party.
 6. Offline-first reads and fail-fast writes on mobile.
 7. "Overdue" computed in the user's own time zone.
 8. APK built reproducibly in GitHub Actions.
@@ -383,7 +384,6 @@ The reasoning behind each choice, with its cost, is in **[docs/ARCHITECTURE.md](
 - Offline edits on the phone are not queued; the app explains that changes need a connection.
 - No email verification, password reset or roles; the session model is ready for them.
 - Projects are created and edited on the web; the mobile app views projects and fully manages tasks, as the brief specifies.
-- The CSP in `apps/web/vercel.json` pins the hash of the small inline theme script in `index.html`; update the hash if that script changes.
 
 ---
 
