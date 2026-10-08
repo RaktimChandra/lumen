@@ -1,0 +1,40 @@
+{
+  "name": "lumen",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lumen — project and task management across web and Android, served by one secure REST API.",
+  "license": "MIT",
+  "author": "Raktim Chandra <raktimchandra26@gmail.com>",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "build:shared": "npm run build -w @lumen/shared",
+    "build:api": "npm run build:shared && npm run build -w @lumen/api",
+    "build:web": "npm run build:shared && npm run build -w @lumen/web",
+    "build": "npm run build:shared && npm run build -w @lumen/api && npm run build -w @lumen/web",
+    "dev:api": "npm run dev -w @lumen/api",
+    "dev:web": "npm run dev -w @lumen/web",
+    "dev:mobile": "npm run start -w @lumen/mobile",
+    "db:migrate": "npm run db:migrate -w @lumen/api",
+    "db:seed": "npm run db:seed -w @lumen/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "globals": "^17.0.0",
+    "prettier": "^3.9.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.0"
+  }
+}

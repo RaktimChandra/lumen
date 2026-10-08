@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+apps/mobile/.expo
+apps/mobile/android
+apps/api/drizzle/meta
+package-lock.json
+*.md
