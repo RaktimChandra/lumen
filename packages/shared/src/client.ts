@@ -104,12 +104,19 @@ export function createApiClient(options: ApiClientOptions) {
   let refreshInFlight: Promise<string | null> | null = null;
   let sessionEndedNotified = false;
 
-  /** Single-flight refresh: concurrent 401s share one refresh call. */
+  /**
+   * Single-flight refresh: concurrent 401s share one refresh call.
+   * A network failure is re-thrown (the session may still be valid); any other
+   * failure means the session cannot be renewed.
+   */
   function refreshOnce(): Promise<string | null> {
     if (!refreshInFlight) {
       refreshInFlight = options
         .refreshAccessToken()
-        .catch(() => null)
+        .catch((error: unknown) => {
+          if (error instanceof ApiError && error.isNetworkError) throw error;
+          return null;
+        })
         .finally(() => {
           refreshInFlight = null;
         });

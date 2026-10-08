@@ -74,6 +74,15 @@ describe('createApiClient', () => {
     expect(onSessionEnded).toHaveBeenCalledWith('expired');
   });
 
+  it('keeps the session when the refresh call cannot reach the server', async () => {
+    const { client, refreshAccessToken, onSessionEnded } = setup([
+      () => json(401, { error: { code: 'TOKEN_EXPIRED', message: 'expired' } }),
+    ]);
+    refreshAccessToken.mockRejectedValueOnce(new ApiError(0, 'NETWORK_ERROR', 'offline') as never);
+    await expect(client.auth.me()).rejects.toMatchObject({ code: 'NETWORK_ERROR' });
+    expect(onSessionEnded).not.toHaveBeenCalled();
+  });
+
   it('reports a revoked session without trying to refresh', async () => {
     const { client, refreshAccessToken, onSessionEnded } = setup([
       () => json(401, { error: { code: 'SESSION_EXPIRED', message: 'gone' } }),
