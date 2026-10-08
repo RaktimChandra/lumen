@@ -62,7 +62,7 @@ jobs:
           NAME="${RELEASE_TAG:-${GITHUB_REF_NAME//\//-}}"
           cp apps/mobile/android/app/build/outputs/apk/release/app-release.apk "dist/lumen-${NAME}.apk"
           ls -lh dist
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: lumen-android-apk
           path: dist/*.apk
