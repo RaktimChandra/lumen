@@ -1,0 +1,65 @@
+erDiagram
+    USERS ||--o{ PROJECTS : owns
+    PROJECTS ||--o{ TASKS : contains
+    USERS ||--o{ SESSIONS : "signs in with"
+    USERS ||--o{ AUDIT_LOGS : "is recorded in"
+
+    USERS {
+        uuid id PK
+        varchar(100) full_name
+        varchar(254) email UK "stored lower-case"
+        text password_hash "bcrypt, cost 12"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    PROJECTS {
+        uuid id PK
+        uuid owner_id FK "users.id, ON DELETE CASCADE"
+        varchar(120) name "CHECK not blank"
+        text description
+        project_status status "NOT_STARTED | IN_PROGRESS | COMPLETED"
+        date start_date
+        date end_date "CHECK end_date >= start_date"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    TASKS {
+        uuid id PK
+        uuid project_id FK "projects.id, ON DELETE CASCADE"
+        varchar(160) name "CHECK not blank"
+        text description
+        task_priority priority "LOW | MEDIUM | HIGH"
+        task_status status "PENDING | IN_PROGRESS | COMPLETED"
+        date due_date
+        timestamptz completed_at "set iff status = COMPLETED"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    SESSIONS {
+        uuid id PK
+        uuid user_id FK "users.id, ON DELETE CASCADE"
+        varchar(64) refresh_token_hash UK "SHA-256, token never stored"
+        varchar(64) previous_token_hash "replay detection"
+        timestamptz rotated_at
+        varchar(16) platform "web | mobile"
+        varchar(255) user_agent
+        varchar(64) ip_address
+        timestamptz last_used_at
+        timestamptz expires_at
+        timestamptz revoked_at
+    }
+
+    AUDIT_LOGS {
+        uuid id PK
+        uuid user_id FK "users.id, ON DELETE CASCADE"
+        varchar(48) action "task.complete, project.create, ..."
+        varchar(16) entity_type
+        uuid entity_id "no FK: outlives deleted rows"
+        varchar(300) summary
+        varchar(16) platform
+        jsonb metadata "field-level before/after"
+        timestamptz created_at
+    }

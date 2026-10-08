@@ -1,0 +1,17 @@
+flowchart LR
+    subgraph Clients
+        W["Web app<br/>React 19 + Vite<br/>(Vercel)"]
+        M["Android app<br/>Expo / React Native<br/>(APK)"]
+    end
+    S["@lumen/shared<br/>zod schemas, types,<br/>typed API client"]
+    W -. imports .-> S
+    M -. imports .-> S
+    W -- "HTTPS /api/* (same-origin rewrite)<br/>Bearer JWT + httpOnly refresh cookie" --> V["Vercel edge"]
+    V --> A
+    M -- "HTTPS<br/>Bearer JWT, refresh token in Keystore" --> A
+    subgraph Render["Render (Singapore)"]
+        A["Lumen API<br/>Express 5 + TypeScript<br/>helmet, CORS, rate limits, zod"]
+        D[("PostgreSQL 16<br/>Drizzle ORM migrations")]
+    end
+    A -. imports .-> S
+    A -- "parameterised SQL" --> D

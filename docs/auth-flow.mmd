@@ -1,0 +1,21 @@
+sequenceDiagram
+    autonumber
+    participant C as Client (web or Android)
+    participant A as Lumen API
+    participant DB as PostgreSQL
+    C->>A: POST /api/auth/login {email, password}
+    A->>DB: find user by email
+    A->>A: bcrypt.compare (dummy hash if unknown email)
+    A->>DB: INSERT session (SHA-256 of refresh token)
+    A-->>C: access JWT (15 min) + refresh token<br/>web: httpOnly cookie, mobile: body → SecureStore
+    C->>A: GET /api/tasks (Authorization: Bearer JWT)
+    A->>DB: session still active? (logout is immediate)
+    A-->>C: 200 tasks owned by this user only
+    Note over C,A: 15 minutes later
+    C->>A: GET /api/tasks
+    A-->>C: 401 TOKEN_EXPIRED
+    C->>A: POST /api/auth/refresh (cookie or body)
+    A->>DB: compare-and-swap token hash (rotation)
+    A-->>C: new access JWT + new refresh token
+    C->>A: retry GET /api/tasks
+    Note over C,A: replaying an old refresh token revokes the session,<br/>and the app returns to sign-in with "Your session expired"
