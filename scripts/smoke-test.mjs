@@ -37,7 +37,7 @@ async function call(method, path, { token, body, platform = 'mobile', expect } =
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const text = await res.text();
-  let json = null;
+  let json;
   try {
     json = text ? JSON.parse(text) : null;
   } catch {
