@@ -20,6 +20,12 @@ Built for the ISMO Bio-Photonics Full Stack Developer assessment by **Raktim Cha
 
 ![Web dashboard](docs/images/screenshots/web-dashboard.png)
 
+**Same account, same data:** tasks created on the web appear on the phone; a task completed and another added on the phone show up on the web, labelled by device.
+
+![Web and Android in sync](docs/media/sync.gif)
+
+Full automated walkthrough (68 s): [`docs/media/lumen-walkthrough.mp4`](docs/media/lumen-walkthrough.mp4). It drives both apps against one API; the Android UI is rendered in a browser for that recording. A recording on a real phone is described in the [demo script](docs/DEMO_SCRIPT.md).
+
 ![Android app, light theme](docs/images/screenshots/android-light.png)
 
 ---
@@ -121,7 +127,7 @@ Extras beyond the brief:
 | Auth | bcryptjs, jsonwebtoken (HS256), opaque refresh tokens | See [security](docs/SECURITY.md) |
 | Web | **React 19**, Vite, React Router 7, TanStack Query 5, Tailwind CSS 4, react-hook-form, dnd-kit | |
 | Mobile | **Expo SDK 57**, React Native 0.86, Expo Router, TanStack Query (persisted), expo-secure-store, NetInfo | |
-| Tests | Vitest + Supertest (real PostgreSQL), Testing Library, Jest (jest-expo) | 168 tests |
+| Tests | Vitest + Supertest (real PostgreSQL), Testing Library, Jest (jest-expo) | 169 tests |
 | Ops | GitHub Actions, CodeQL, Dependabot, Docker, docker compose, nginx, Render, Vercel | |
 
 ---
@@ -306,7 +312,7 @@ Then press `a` for an Android emulator, or scan the QR code with a development b
 | Suite | Tool | Tests | Covers |
 |---|---|---|---|
 | API | Vitest + Supertest against **real PostgreSQL** | 106 | Auth, token expiry and refresh rotation, replay detection, logout, sessions, rate limits, validation, cross-user isolation, injection, response hygiene, CORS, headers, dashboard maths, activity |
-| Shared | Vitest | 44 | Every schema edge case; API client refresh, session-end and error mapping |
+| Shared | Vitest | 45 | Every schema edge case; API client refresh, session-end and error mapping |
 | Web | Vitest + Testing Library | 11 | Forms, validation, server field errors, session-expired message, components |
 | Mobile | Jest (jest-expo) | 7 | Keystore storage, launch flow, expiry → sign-in, offline start |
 

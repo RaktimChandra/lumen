@@ -13,5 +13,5 @@ All notable changes to this project are documented here. The format follows
 - Shared package with zod schemas, response types and a typed API client used by every app.
 - React web app: dashboard, projects, tasks (list and board), search, filters, sorting, pagination, activity, settings, command palette, light and dark themes.
 - Expo Android app: secure token storage, dashboard, projects, tasks CRUD, search and filters, pull-to-refresh, offline viewing, session-expiry handling, local due-tomorrow reminders.
-- 168 automated tests, GitHub Actions CI, Android APK workflow, CodeQL, Dependabot, Docker images, docker compose stack and Render blueprint.
+- 169 automated tests, GitHub Actions CI, Android APK workflow, CodeQL, Dependabot, Docker images, docker compose stack and Render blueprint.
 - Documentation: README, API reference, OpenAPI, ER and architecture diagrams, security notes, demo script.
