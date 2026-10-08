@@ -1,0 +1,68 @@
+name: Android APK
+
+# Builds a release APK on GitHub's runners (no Expo account needed) and attaches it
+# to a GitHub Release for tagged versions.
+on:
+  push:
+    tags: ['v*']
+    branches: [main]
+    paths:
+      - 'apps/mobile/**'
+      - 'packages/shared/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: API base URL baked into the app
+        required: false
+        default: https://lumen-api.onrender.com
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      EXPO_PUBLIC_API_URL: ${{ inputs.api_url || vars.LUMEN_API_URL || 'https://lumen-api.onrender.com' }}
+      NODE_OPTIONS: --max-old-space-size=6144
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - run: npm run build:shared
+      - name: Generate the native Android project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform android --no-install
+      - name: Build release APK
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a,x86_64
+      - name: Name the APK
+        run: |
+          mkdir -p dist
+          cp apps/mobile/android/app/build/outputs/apk/release/app-release.apk "dist/lumen-${GITHUB_REF_NAME//\//-}.apk"
+          ls -lh dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lumen-android-apk
+          path: dist/*.apk
+          retention-days: 30
+      - name: Attach APK to the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.apk
+          generate_release_notes: true
