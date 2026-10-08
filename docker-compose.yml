@@ -1,0 +1,48 @@
+# One command to run the whole stack locally:
+#   docker compose up --build
+# Web app: http://localhost:8080   API: http://localhost:4000/api/docs
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lumen
+      POSTGRES_PASSWORD: lumen
+      POSTGRES_DB: lumen
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U lumen']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://lumen:lumen@db:5432/lumen
+      DATABASE_SSL: 'false'
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-local-compose-secret-change-me-0123456789abcdef}
+      CORS_ORIGINS: http://localhost:8080
+      # Local HTTP: cookies cannot be Secure, so relax SameSite only for compose.
+      COOKIE_SAMESITE: lax
+      TRUST_PROXY: '1'
+    ports:
+      - '4000:4000'
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - '8080:80'
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
