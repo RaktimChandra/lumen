@@ -1,0 +1,26 @@
+name: Production smoke test
+
+# Runs the end-to-end checks in scripts/smoke-test.mjs against the live deployment.
+on:
+  workflow_dispatch:
+    inputs:
+      seed_demo:
+        description: Also reset the demo account's sample data
+        type: boolean
+        default: false
+  schedule:
+    - cron: '17 3 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/smoke-test.mjs "${{ vars.LUMEN_API_URL || 'https://lumen-api-x4be.onrender.com' }}" ${{ inputs.seed_demo && '--seed-demo' || '' }}
