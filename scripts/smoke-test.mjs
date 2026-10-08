@@ -229,6 +229,12 @@ check(
 const bobDash = await call('GET', '/api/dashboard', { token: B, expect: 200 });
 check(bobDash.body.data.totalProjects === 0, "other user's dashboard is empty");
 
+await call('DELETE', `/api/projects/${P}`, { token: A, expect: 204 });
+check(
+  (await call('GET', '/api/tasks', { token: A, expect: 200 })).body.meta.total === 0,
+  'deleting a project deletes its tasks',
+);
+
 const refreshed = await call('POST', '/api/auth/refresh', {
   body: { refreshToken: alice.body.refreshToken },
   expect: 200,
@@ -243,12 +249,6 @@ const afterLogout = await call('GET', '/api/auth/me', { token: refreshed.body.ac
 check(
   afterLogout.status === 401 && afterLogout.body.error.code === 'SESSION_EXPIRED',
   'logout revokes the session immediately',
-);
-
-await call('DELETE', `/api/projects/${P}`, { token: A, expect: 204 });
-check(
-  (await call('GET', '/api/tasks', { token: A, expect: 200 })).body.meta.total === 0,
-  'deleting a project deletes its tasks',
 );
 
 if (seedDemo) {
